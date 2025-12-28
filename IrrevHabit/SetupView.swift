@@ -12,42 +12,75 @@ struct SetupView: View {
     @State private var newStandardTitle: String = ""
     
     var body: some View {
-        VStack (spacing: 24){
-            Text("Define your Daily Standards")
-                .font(.title2)
-                .fontWeight(.bold)
-           
-            VStack(spacing: 12) {
-                TextField("Enter a standard", text: $newStandardTitle)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+        ZStack{
+            Color.black.ignoresSafeArea()
+            
+            VStack (spacing: 32){
                 
-                Button("Add Standard"){
-                    addStandard()
+                VStack (spacing: 8) {
+                    //Header
+                    Text("DEFINE DAILY STANDARDS")
+                        .font(.caption)
+                        .tracking(2)
+                        .foregroundColor(.gray)
+                    
+                    Text("Your non-negotiables")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                    
                 }
-                .disabled(newStandardTitle.trimmingCharacters(in: .whitespaces).isEmpty)
-            }
-            List(store.standards) { standard in
-                Text(standard.title)
-            }
-            
-            Divider()
-            
-            VStack(spacing: 12) {
-                Text("Once locked, standards cannot be changed.")
-                    .font(.footnote)
-                    .foregroundColor(.secondary)
+                VStack(spacing: 12) {
+                    TextField("e.g. Slee. before 23:00", text: $newStandardTitle)
+                        .padding()
+                        .background(Color(white: 0.1))
+                        .foregroundColor(.white)
+                        .cornerRadius(6)
+                    
+                    Button("ADD STANDARD"){
+                        addStandard()
+                    }
+                    .disabled(newStandardTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color(white: 0.2))
+                    .cornerRadius(6)
+                }
                 
-                Button("LOCK STANDARDS") {
-                    store.lockStandards()
+                VStack(alignment: .leading, spacing: 12) {
+                    
+                    ForEach(store.standards) { standard in
+                        Text(standard.title)
+                            .foregroundColor(.white)
+                            .padding()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .background(Color(white: 0.08))
+                            .cornerRadius(6)
+                    }
                 }
-                .disabled(!store.canLockStandards)
-                .buttonStyle(.borderedProminent)
+                
+                Spacer()
+                //Lock section
+                VStack(spacing: 12) {
+                    Text("Once locked, standards cannot be changed.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                    
+                    Button("LOCK STANDARDS") {
+                        store.lockStandards()
+                    }
+                    .disabled(!store.canLockStandards)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(store.canLockStandards ? Color.white : Color(white: 0.3))
+                    .foregroundColor(.black)
+                    .cornerRadius(6)
+                }
+                
             }
-            
+            .padding()
         }
-        .padding()
     }
-    
     private func addStandard () {
         let trimed = newStandardTitle.trimmingCharacters(in: .whitespaces)
         guard !trimed.isEmpty else { return }

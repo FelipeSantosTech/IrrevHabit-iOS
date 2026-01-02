@@ -28,6 +28,13 @@ struct MainView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                 }
+                
+                if store.isDayComplete {
+                    Text("Day complete. Come back tomorrow.")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
+
                 //standards
                 VStack(spacing: 16) {
                     ForEach(store.standards.indices, id: \.self) { index in
@@ -51,7 +58,12 @@ struct MainView: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
-            if standard.status == .pending {
+            if store.isDayComplete {
+                Text(standard.status == .done ? "COMPLETED" : "MISSED")
+                    .font(.caption)
+                    .tracking(1)
+                    .foregroundColor(standard.status == .done ? .green : .red)
+            } else if standard.status == .pending {
                 HStack(spacing: 12) {
                     Button("DONE") {
                         store.markDone(at: index)
@@ -61,8 +73,8 @@ struct MainView: View {
                     .background(Color.white)
                     .foregroundColor(.black)
                     .cornerRadius(6)
-                    
-                    Button("MISSED"){
+
+                    Button("MISSED") {
                         store.markMissed(at: index)
                     }
                     .frame(maxWidth: .infinity)
@@ -77,6 +89,7 @@ struct MainView: View {
                     .tracking(1)
                     .foregroundColor(standard.status == .done ? .green : .red)
             }
+
         }
         .padding()
         .background(Color(white: 0.08))

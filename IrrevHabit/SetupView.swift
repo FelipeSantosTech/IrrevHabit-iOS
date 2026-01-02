@@ -10,6 +10,9 @@ import SwiftUI
 struct SetupView: View {
     @EnvironmentObject var store: StandardsStore
     @State private var newStandardTitle: String = ""
+    @State private var showLockConfirmation: Bool = false
+    @State private var confirmationText: String = ""
+
     
     var body: some View {
         ZStack{
@@ -67,7 +70,7 @@ struct SetupView: View {
                         .foregroundColor(.gray)
                     
                     Button("LOCK STANDARDS") {
-                        store.lockStandards()
+                        showLockConfirmation = true
                     }
                     .disabled(!store.canLockStandards)
                     .frame(maxWidth: .infinity)
@@ -76,6 +79,39 @@ struct SetupView: View {
                     .foregroundColor(.black)
                     .cornerRadius(6)
                 }
+                
+                if showLockConfirmation {
+                    VStack(spacing: 16) {
+                        Text("This action is irreversible.")
+                            .font(.headline)
+                            .foregroundColor(.white)
+
+                        Text("Type LOCK to confirm.")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+
+                        TextField("LOCK", text: $confirmationText)
+                            .padding()
+                            .background(Color(white: 0.1))
+                            .foregroundColor(.white)
+                            .cornerRadius(6)
+                            .autocapitalization(.allCharacters)
+
+                        Button("CONFIRM & LOCK") {
+                            store.lockStandards()
+                        }
+                        .disabled(confirmationText != "LOCK")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(confirmationText == "LOCK" ? Color.white : Color(white: 0.3))
+                        .foregroundColor(.black)
+                        .cornerRadius(6)
+                    }
+                    .padding()
+                    .background(Color(white: 0.05))
+                    .cornerRadius(8)
+                }
+
                 
             }
             .padding()

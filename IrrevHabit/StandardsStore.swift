@@ -21,6 +21,12 @@ class StandardsStore: ObservableObject {
         !standards.isEmpty && !areStandardsLocked
     }
     
+    var isDayComplete: Bool {
+        standards.allSatisfy{
+            standard in standard.status != DailyStatus.pending
+        }
+    }
+    
     func lockStandards (){
         guard canLockStandards else { return }
         areStandardsLocked = true

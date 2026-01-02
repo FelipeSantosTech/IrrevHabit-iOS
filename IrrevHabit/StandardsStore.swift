@@ -14,6 +14,25 @@ class StandardsStore: ObservableObject {
     @Published var hasCompletedOnboarding: Bool = false
     @Published var areStandardsLocked: Bool = false
     
+    let maxStandards = 5
+
+    var canAddStandard: Bool {
+        standards.count < maxStandards && !areStandardsLocked
+    }
+
+    func addStandard(title: String) {
+        guard canAddStandard else { return }
+
+        let standard = Standard(
+            id: UUID(),
+            title: title,
+            status: .pending
+        )
+
+        standards.append(standard)
+    }
+
+    
     @AppStorage("lastExecutionDate")
     private var lastExecutionDate: Double = 0
     

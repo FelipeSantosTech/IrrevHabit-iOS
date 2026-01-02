@@ -40,14 +40,27 @@ struct SetupView: View {
                         .foregroundColor(.white)
                         .cornerRadius(6)
                     
-                    Button("ADD STANDARD"){
-                        addStandard()
+                    Button("ADD STANDARD") {
+                        let trimmed = newStandardTitle.trimmingCharacters(in: .whitespaces)
+                        guard !trimmed.isEmpty else { return }
+
+                        store.addStandard(title: trimmed)
+                        newStandardTitle = ""
                     }
-                    .disabled(newStandardTitle.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(
+                        newStandardTitle.trimmingCharacters(in: .whitespaces).isEmpty
+                        || !store.canAddStandard
+                    )
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(Color(white: 0.2))
                     .cornerRadius(6)
+                    
+                    if store.standards.count >= store.maxStandards {
+                        Text("Maximum of 5 standards allowed.")
+                            .font(.footnote)
+                            .foregroundColor(.gray)
+                    }
                 }
                 
                 VStack(alignment: .leading, spacing: 12) {

@@ -12,11 +12,15 @@ struct SetupView: View {
     @State private var newStandardTitle: String = ""
     @State private var showLockConfirmation: Bool = false
     @State private var confirmationText: String = ""
+    @State private var editingStandardID: UUID? = nil
+    @State private var editedTitle: String = ""
 
     
     var body: some View {
         ZStack{
             Color.black.ignoresSafeArea()
+            
+            ScrollView {
             
             VStack (spacing: 32){
                 
@@ -43,7 +47,7 @@ struct SetupView: View {
                     Button("ADD STANDARD") {
                         let trimmed = newStandardTitle.trimmingCharacters(in: .whitespaces)
                         guard !trimmed.isEmpty else { return }
-
+                        
                         store.addStandard(title: trimmed)
                         newStandardTitle = ""
                     }
@@ -66,13 +70,30 @@ struct SetupView: View {
                 VStack(alignment: .leading, spacing: 12) {
                     
                     ForEach(store.standards) { standard in
-                        Text(standard.title)
-                            .foregroundColor(.white)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background(Color(white: 0.08))
-                            .cornerRadius(6)
+                        VStack {
+                            if editingStandardID == standard.id {
+                                TextField("Edit standard", text: $editedTitle)
+                                    .padding()
+                                    .background(Color(white: 0.1))
+                                    .foregroundColor(.white)
+                                    .cornerRadius(6)
+                                    .onSubmit {
+                                        saveEdit(for: standard)
+                                    }
+                            } else {
+                                Text(standard.title)
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .background(Color(white: 0.08))
+                                    .cornerRadius(6)
+                                    .onTapGesture {
+                                        beginEditing(standard)
+                                    }
+                            }
+                        }
                     }
+                    
                 }
                 
                 Spacer()
@@ -98,18 +119,18 @@ struct SetupView: View {
                         Text("This action is irreversible.")
                             .font(.headline)
                             .foregroundColor(.white)
-
+                        
                         Text("Type LOCK to confirm.")
                             .font(.footnote)
                             .foregroundColor(.gray)
-
+                        
                         TextField("LOCK", text: $confirmationText)
                             .padding()
                             .background(Color(white: 0.1))
                             .foregroundColor(.white)
                             .cornerRadius(6)
                             .autocapitalization(.allCharacters)
-
+                        
                         Button("CONFIRM & LOCK") {
                             store.lockStandards()
                         }
@@ -124,9 +145,10 @@ struct SetupView: View {
                     .background(Color(white: 0.05))
                     .cornerRadius(8)
                 }
-
+                
                 
             }
+        }
             .padding()
         }
     }
@@ -143,6 +165,26 @@ struct SetupView: View {
         store.standards.append(standard)
         newStandardTitle = ""
     }
+    
+    private func beginEditing(_ standard: Standard) {
+        guard !store.areStandardsLocked else { return }
+        editingStandardID = standard.id
+        editedTitle = standard.title
+    }
+
+    private func saveEdit(for standard: Standard) {
+        guard let index = store.standards.firstIndex(where: { $0.id == standard.id }) else {
+            editingStandardID = nil
+            return
+        }
+
+        let trimmed = editedTitle.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return }
+
+        store.standards[index].title = trimmed
+        editingStandardID = nil
+    }
+
 }
 
 #Preview {

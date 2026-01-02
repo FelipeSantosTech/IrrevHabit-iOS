@@ -15,6 +15,6 @@ enum DailyStatus: String, Codable {
 
 struct Standard: Identifiable, Codable {
     let id: UUID
-    let title: String
+    var title: String
     var status: DailyStatus
 }
